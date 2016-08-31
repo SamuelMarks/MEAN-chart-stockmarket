@@ -2,16 +2,17 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 
-var Rsvp = require('../server/models/rsvp');
+var Stock = require('../server/models/stock');
 
 // define the home page route
 router.get('/', function(req, res) {
-    Rsvp.find({}, function (err, rsvps) {
+    Stock.find({}, function (err, stocks) {
         if(err) console.log('Err: ', err);
-        res.json(rsvps);
+        res.json(stocks);
     }); 
 });
 
+/*
   router.get('/:barId', function(req, res) {
     // Create a new rsvp
     
@@ -110,7 +111,7 @@ router.get('/', function(req, res) {
     }); 
 
   });  
-
+*/
 
 
 module.exports = router;

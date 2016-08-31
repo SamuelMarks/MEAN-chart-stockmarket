@@ -3,10 +3,10 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;  
 
-var rsvpSchema = new Schema({
+var stockSchema = new Schema({
   bar: String,
   numberAttending: Number,
   dateAdded: String
 });
 
-module.exports = mongoose.model('Rsvp', rsvpSchema);
+module.exports = mongoose.model('Stock', stockSchema);

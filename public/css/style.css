@@ -2,9 +2,13 @@
 
 body {
   padding: 50px;
-  font-family: 'Source Code Pro', serif;
+  background: #515c65;
 }
 
 a {
   color: #00B7FF;
+}
+
+.loading-container {
+  text-align: center;
 }

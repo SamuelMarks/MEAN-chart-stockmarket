@@ -6,16 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var mongoose = require('mongoose');
-var passport = require('passport');
 var async = require('async');
 var moment = require('moment');
-
 var MongoStore = require('connect-mongo')(session);
-
-var rsvps = require('./routes/rsvps');
-var users = require('./routes/users');
-
-require('./server/passport')(passport);
 
 var app = express();
 
@@ -35,16 +28,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'app')));
 
-var Yelp = require('yelp');
-
-var yelp = new Yelp({
-  consumer_key: '63BCSdCRdfJ1bZupxB5OeA',
-  consumer_secret: 'tJf5idBAYm-sLyeEtaNYojZBaXk',
-  token: 'H2XjHsW_dE0ILIPpqcEQ5HxzdUUfignR',
-  token_secret: 'Sh0M1K0IziMwTBernLlqeKH6kIw'
-});
-
-mongoose.connect('mongodb://admin:admin@ds145405.mlab.com:45405/dlw-nightlife-app'); // Connect to MongoDB database for polling app.  
+mongoose.connect('mongodb://admin:admin@ds019806.mlab.com:19806/fcc-chart-stock-market'); // Connect to MongoDB database for polling app.  
 
 // Make sure mongod is running! If not, log an error and exit. 
 
@@ -55,85 +39,15 @@ mongoose.connection.on('error', function() {
 
 app.use(session({ 
   secret: 'my_precious_l@3', 
-  cookie: { maxAge: 60000 },
+  cookie: { maxAge: 600000 }, // 1 hour session
   saveUninitialized: false, // don't create session until something stored 
   resave: false, //don't save session if unmodified     
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));   
   
-app.use(session({
-  secret: 'my_precious_l@3',
-  resave: false,
-  saveUninitialized: true
-})); 
+var stocks = require('./routes/stocks');  
 
-app.use(passport.initialize());
-app.use(passport.session());   
-  
-app.get('/auth/twitter',
-  passport.authenticate('twitter'));
-
-app.get('/auth/twitter/callback', 
-  passport.authenticate('twitter', { failureRedirect: '/' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/');
-  });  
-  
-var Rsvp = require('./server/models/rsvp');
-
-  // Endpoint to retrieve local bars from yelp ip. location param passed in is the city you desire results for
-  app.get('/api/yelp-search/:location', function(req, res) {
-    var bars = [];
-    var currentDate = moment().format('MM-DD-YYYY');
-    
-    yelp.search({ term: 'bars', location: req.params.location })
-    .then(function (data) {
-      bars = data.businesses;
-      
-      var barsProcessed = 1;
-      //console.log('Should run ' + bars.length + ' times.');
-      
-      async.forEachLimit(bars, 5, function(bar, callback) {
-        var barId = bar.id;
-        var barRsvps = 0;
-        var currentBar;
-        
-        Rsvp.find({bar: barId, dateAdded: currentDate}, function (err, bar) {
-          if(err) console.log('Err: ', err);
-          currentBar = bar;
-        }).then(function() {         
-          barRsvps = 0;
-          bar.userIsGoing = 0;
-          if(currentBar.length) {
-            barRsvps = currentBar[0].numberAttending;                
-          }
-          bar.totalRSVPs = barRsvps;
-          callback();
-        });
-        
-        if(barsProcessed === bars.length) {
-          // All bars processed. Send back results immediately.
-          res.send(bars);
-        }
-        
-        //console.log('Processed bar: ', barsProcessed);
-        barsProcessed++;
-      }, 
-      function(err) {
-        if (err) console.log(err);
-        res.send(bars);
-      });
-    })
-    .catch(function (err) {
-      console.error(err);
-    });
-    
-  });
-  
-
-app.use('/api/user', users);
-app.use('/api/rsvps', rsvps);
+app.use('/api/stocks', stocks);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

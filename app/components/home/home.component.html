@@ -1,11 +1,28 @@
 <div class="container">
-  <h1 class="text-primary text-center">Home Component</h1>
-  <h2 class="text-center">Connected Home Component</h2>
+  <h4 class="header-text text-center">STOCK TRACKER</h4>
   
   <div class="row text-center">
-    <p>
-     Lorem Ipsum...
-    </p>
+    <div class="graph"></div>
+  </div>
+  
+  <div class="row stock-list">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <div class="row">
+          <div class="col-xs-11">AOL</div>
+          <div class="col-xs-1"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></div>
+        </div>
+      </li>
+      <li class="list-group-item">
+        <form class="form-inline">
+          <div class="form-group">
+            <label for="ticketSymbol" class="sr-only">Ticker Symbol</label>
+            <input type="password" class="form-control" id="ticketSymbol" placeholder="Symbol">
+          </div>
+          <button type="submit" class="btn btn-default">Add</button>
+        </form>      
+      </li>
+    </ul>    
   </div>
   
 </div>
