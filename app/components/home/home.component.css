@@ -6,10 +6,16 @@
 .container {
   background: #1b242c;
   border-radius: 10px;
+  padding: 20px;
 }
 
 .header-text {
   color: #fff;
+}
+
+#graph, .list-group {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .list-group-item .glyphicon {

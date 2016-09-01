@@ -6,6 +6,8 @@ import { AppComponent }  from './app.component';
 import { routing } from "./routes";
 import { HomeComponent } from "./components/home/home.component";
 
+import { StocksService } from "./components/services/stocks.service";
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -13,6 +15,9 @@ import { HomeComponent } from "./components/home/home.component";
         JsonpModule,
         routing
     ],
+    providers: [
+        StocksService
+    ],     
     declarations: [
         AppComponent,
         HomeComponent

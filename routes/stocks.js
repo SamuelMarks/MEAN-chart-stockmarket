@@ -1,10 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var moment = require('moment');
 
 var Stock = require('../server/models/stock');
 
-// define the home page route
+// get all stocks in the database
 router.get('/', function(req, res) {
     Stock.find({}, function (err, stocks) {
         if(err) console.log('Err: ', err);
@@ -12,106 +11,42 @@ router.get('/', function(req, res) {
     }); 
 });
 
-/*
-  router.get('/:barId', function(req, res) {
-    // Create a new rsvp
-    
-    //console.log('Remove RSVPs with dateAdded older than 2 days ago to keep data small.');
-    
-    var currentDate = moment().format('MM-DD-YYYY');
-    var existingBar;
-    var barHasPreviousRsvpToday = false;
-    var barId = req.params.barId;
-    
-    //console.log('Checking if there is an RSVP TODAY for bar with id of: ', barId);
-    //console.log('CURRENT DATE: ', currentDate);
-    
-    Rsvp.find({bar: barId, dateAdded: currentDate}, function (err, bar) {
-      //console.log('Found bar with previous RSVP for today. Bar ID: ', bar);
-      if(err) console.log('Err: ', err);
-      if(bar) {
-        existingBar = bar[0]; 
-      }
-    }).then(function(){    
-      //console.log('Working with Bar RSVP of: ', existingBar);
-
-      if(existingBar) {
-        //console.log("TRUE");
-          barHasPreviousRsvpToday = true;
-      }
-
-      if(barHasPreviousRsvpToday) {
-        //console.log('WILL UPDATE Bar: ', existingBar);
-        
-        var numAttending = 0 + existingBar.numberAttending;
-        existingBar.numberAttending = numAttending + 1;
-      
-        Rsvp.update({_id: existingBar.id}, existingBar, {upsert: true}, function (err, obj) {
-            if(err) console.log('Err: ', err);
-            //console.log('UPDATED SUCCESSFULLY!');
-            res.status(201).json(existingBar);
-        });     
-        
-      } else {
-        //console.log('WILL CREATE NEW RSVP for this bar.');
-      
-        var rsvp = new Rsvp({
-          bar: req.params.barId,
-          numberAttending: 1,
-          dateAdded: currentDate
-        });
-    
-        rsvp.save(function (err, rsvp) {
-          if (err) { 
-            console.log('error saving rsvp: ', err);
-          }
-          res.status(201).json(rsvp);
-        });   
-      }
-      
-    }); 
-
-  });  
+// Post a new stock to be tracked
+router.post('/', function(req, res) {
+    console.log("Req.body: ", req.body);
   
-  // Endpoint to cancel a rsvp. Just decrements the numberAttending count for this bar on this day
-  router.get('/cancel/:barId', function(req, res) {
-    // USER HAS TO BE LOGGED IN
-    //console.log('Remove RSVPs with dateAdded older than 2 days ago to keep data small.');
+    var stock = new Stock({
+      name: req.body.Name,
+      code: req.body.Symbol
+    });
     
-    var currentDate = moment().format('MM-DD-YYYY');
-    var existingBar;
-    var barHasPreviousRsvpToday = false;
-    var barId = req.params.barId;
-    
-    Rsvp.find({bar: barId, dateAdded: currentDate}, function (err, bar) {
-        if(err) console.log('Err: ', err);
-        //console.log('Found bar with previous RSVP for today. Bar ID: ', bar.bar);
-      
-        barHasPreviousRsvpToday = true;
-        existingBar = bar[0];
-    }).then(function(){    
-      //console.log('Working with Bar RSVP of: ', existingBar);
+    console.log('Saving stock: ', stock);
 
-      if(barHasPreviousRsvpToday) {
-        //console.log('WILL UPDATE');
-        
-        var numAttending = 0 + existingBar.numberAttending;
-        existingBar.numberAttending = numAttending - 1;
-      
-        Rsvp.update({_id: existingBar.id}, existingBar, {upsert: true}, function (err, obj) {
-            if(err) console.log('Err: ', err);
-            //console.log('UPDATED SUCCESSFULLY!');
-            res.status(201).json(existingBar);
-        });     
-        
-      } else {
-        console.log('A bar should exist for cancelling an RSVP.');
+    stock.save(function (err, stock) {
+      if (err) { 
+        console.log('error saving stock: ', err);
       }
-      
-    }); 
+      res.status(201).json(stock);
+    });
+});
 
-  });  
-*/
+router.get('/:id', function(req, res) {
+    var id = req.params.id;
+    Stock.findOne({'_id':id},function(err, result) {
+        if(err) console.log('Err: ', err);
+        return res.send(result);
+    });             
+});
 
+router.delete('/:id', function(req, res) {
+    var id = req.params.id;
+    
+    console.log("Will remove stock with id of: ", id);
+    
+    Stock.remove({'_id': id},function(result) {
+      res.json(result);       
+    });    
+    
+});
 
 module.exports = router;
