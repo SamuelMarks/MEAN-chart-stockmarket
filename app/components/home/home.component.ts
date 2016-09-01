@@ -47,10 +47,8 @@ export class HomeComponent implements OnInit {
         
         for(let i = 0; i < this.stocks.length; i++) {
             currentStock = this.stocks[i];
-            console.log("Pushing stock names onto array: ", currentStock);
             this.stockNames.push(currentStock.code); 
         }
-        console.log("Stock Names array: ", this.stockNames);
         this.initializeGraph();
     }
     
@@ -63,7 +61,6 @@ export class HomeComponent implements OnInit {
         this.stocksService.getStockDetail(this.stock.code)
             .subscribe(
               stock => {
-                console.log("Stock Detail: ", stock);
                 this.stock = stock;
                 this.saveStock();
               },
@@ -72,12 +69,13 @@ export class HomeComponent implements OnInit {
     }
     
     saveStock() {
-        console.log("Saving stock: ", this.stock);
-        
         this.stocksService.saveStock(this.stock)
             .subscribe(
               stock => {
-                this.stocks.push(this.stock);
+                this.stocks.push({
+                    name: this.stock.Name,
+                    code: this.stock.Symbol
+                });
                 this.loadStockData();
               },
               error =>  this.errorMessage = <any>error
@@ -96,6 +94,7 @@ export class HomeComponent implements OnInit {
     
     initializeGraph() {
         let snArray = this.stockNames;
+        //let snNames = ["AAPL", "MSFT", "GOOG", "TWTR"];
         
         $(function () {
             
@@ -110,9 +109,24 @@ export class HomeComponent implements OnInit {
             function createChart() {
         
                 $('#graph').highcharts('StockChart', {
+                    chart: {
+                        ignoreHiddenSeries: false
+                    },
+                    
+                    legend: {
+                        shadow: true  
+                    },
+        
+                    navigation: {
+                        enabled: false
+                    },
         
                     rangeSelector: {
                         selected: 4
+                    },
+                    
+                    credits: {
+                        enabled: 0  
                     },
         
                     yAxis: {

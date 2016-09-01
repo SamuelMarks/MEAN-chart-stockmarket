@@ -25165,10 +25165,8 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
             this.stockNames = [];
             for (var i = 0; i < this.stocks.length; i++) {
                 currentStock = this.stocks[i];
-                console.log("Pushing stock names onto array: ", currentStock);
                 this.stockNames.push(currentStock.code);
             }
-            console.log("Stock Names array: ", this.stockNames);
             this.initializeGraph();
         };
         HomeComponent.prototype.getStockDetails = function () {
@@ -25187,7 +25185,10 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
             var _this = this;
             console.log("Saving stock: ", this.stock);
             this.stocksService.saveStock(this.stock).subscribe(function (stock) {
-                _this.stocks.push(_this.stock);
+                _this.stocks.push({
+                    name: _this.stock.Name,
+                    code: _this.stock.Symbol
+                });
                 _this.loadStockData();
             }, function (error) {
                 return _this.errorMessage = error;
@@ -25195,20 +25196,21 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
         };
         HomeComponent.prototype.untrackStock = function (id) {
             var _this = this;
-            console.log("Remove this stock from the database with id of: ", id);
             this.stocksService.deleteStock(id).subscribe(function (stock) {
-                console.log("Stock: ", stock);
-                _this.loadStockData();
+                _this.getStocks();
             }, function (error) {
                 return _this.errorMessage = error;
             });
         };
         HomeComponent.prototype.initializeGraph = function () {
             var snArray = this.stockNames;
+            var snNames = ["AAPL", "MSFT", "GOOG", "TWTR"];
+            console.log("Stock Names Array: ", snArray);
+            console.log("Hard Coded Array: ", snNames);
             $(function () {
                 var seriesOptions = [],
                     seriesCounter = 0,
-                    names = snArray;
+                    names = snNames;
                 /**
                  * Create the chart when all data is loaded
                  * @returns {undefined}
