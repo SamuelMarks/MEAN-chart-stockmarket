@@ -25174,7 +25174,6 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
             // Used when adding a new stock to track
             console.log("Will look up the name for stock with code of: ", this.stock);
             this.stocksService.getStockDetail(this.stock.code).subscribe(function (stock) {
-                console.log("Stock Detail: ", stock);
                 _this.stock = stock;
                 _this.saveStock();
             }, function (error) {
@@ -25183,7 +25182,6 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
         };
         HomeComponent.prototype.saveStock = function () {
             var _this = this;
-            console.log("Saving stock: ", this.stock);
             this.stocksService.saveStock(this.stock).subscribe(function (stock) {
                 _this.stocks.push({
                     name: _this.stock.Name,
@@ -25204,21 +25202,31 @@ $__System.registerDynamic("3d", ["3", "3e", "40"], true, function ($__require, e
         };
         HomeComponent.prototype.initializeGraph = function () {
             var snArray = this.stockNames;
-            var snNames = ["AAPL", "MSFT", "GOOG", "TWTR"];
-            console.log("Stock Names Array: ", snArray);
-            console.log("Hard Coded Array: ", snNames);
+            //let snNames = ["AAPL", "MSFT", "GOOG", "TWTR"];
             $(function () {
                 var seriesOptions = [],
                     seriesCounter = 0,
-                    names = snNames;
+                    names = snArray;
                 /**
                  * Create the chart when all data is loaded
                  * @returns {undefined}
                  */
                 function createChart() {
                     $('#graph').highcharts('StockChart', {
+                        chart: {
+                            ignoreHiddenSeries: false
+                        },
+                        legend: {
+                            shadow: true
+                        },
+                        navigation: {
+                            enabled: false
+                        },
                         rangeSelector: {
                             selected: 4
+                        },
+                        credits: {
+                            enabled: 0
                         },
                         yAxis: {
                             labels: {
