@@ -1,28 +1,28 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-var Stock = require('../server/models/stock');
+const Stock = require('../server/models/stock');
 
 // get all stocks in the database
-router.get('/', function(req, res) {
-    Stock.find({}, function (err, stocks) {
-        if(err) console.log('Err: ', err);
+router.get('/', (req, res) => {
+    Stock.find({}, (err, stocks) => {
+        if (err) console.log('Err: ', err);
         res.json(stocks);
     }); 
 });
 
 // Post a new stock to be tracked
-router.post('/', function(req, res) {
+router.post('/', (req, res) => {
     console.log("Req.body: ", req.body);
   
-    var stock = new Stock({
+    const stock = new Stock({
       name: req.body.Name,
       code: req.body.Symbol
     });
     
     console.log('Saving stock: ', stock);
 
-    stock.save(function (err, stock) {
+    stock.save((err, stock) => {
       if (err) { 
         console.log('error saving stock: ', err);
       }
@@ -30,22 +30,22 @@ router.post('/', function(req, res) {
     });
 });
 
-router.get('/:id', function(req, res) {
-    var id = req.params.id;
-    Stock.findOne({'_id':id},function(err, result) {
-        if(err) console.log('Err: ', err);
+router.get('/:id', (req, res) => {
+    const id = req.params.id;
+    Stock.findOne({'_id':id}, (err, result) => {
+        if (err) console.log('Err: ', err);
         return res.send(result);
     });             
 });
 
-router.delete('/:id', function(req, res) {
-    var id = req.params.id;
+router.delete('/:id', (req, res) => {
+    const id = req.params.id;
     
     console.log("Will remove stock with id of: ", id);
     
-    Stock.remove({'_id': id},function(result) {
-      res.json(result);       
-    });    
+    Stock.remove({'_id': id}, result =>
+      res.json(result)
+    );
     
 });
 

@@ -1,16 +1,13 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var mongoose = require('mongoose');
-var async = require('async');
-var moment = require('moment');
-var MongoStore = require('connect-mongo')(session);
+const express = require('express');
+const path = require('path');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
 
-var app = express();
+const app = express();
 
 if (app.get('env') !== 'production') {
 
@@ -28,11 +25,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'app')));
 
-mongoose.connect('mongodb://admin:admin@ds019806.mlab.com:19806/fcc-chart-stock-market'); // Connect to MongoDB database for polling app.  
+// Connect to MongoDB database for polling app.
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://admin:admin@ds019806.mlab.com:19806/fcc-chart-stock-market');
 
 // Make sure mongod is running! If not, log an error and exit. 
 
-mongoose.connection.on('error', function() {
+mongoose.connection.on('error', () => {
   console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
   process.exit(1);
 });
@@ -45,13 +43,13 @@ app.use(session({
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));   
   
-var stocks = require('./routes/stocks');  
+const stocks = require('./routes/stocks');
 
 app.use('/api/stocks', stocks);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -61,7 +59,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
 
-  app.use(function(err, req, res, next) {
+  app.use((err, req, res) => {
     res.status(err.status || 500);
     res.json({
       message: err.message,
@@ -72,7 +70,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use((err, req, res) => {
   res.status(err.status || 500);
   res.json({
     message: err.message,

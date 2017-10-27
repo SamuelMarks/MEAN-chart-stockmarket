@@ -1,23 +1,25 @@
 import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule, JsonpModule } from '@angular/http';
+import { RouterModule }  from '@angular/router';
 
 import { AppComponent }  from './app.component';
-import { routing } from "./routes";
-import { HomeComponent } from "./components/home/home.component";
+import { routes } from  './routes';
+import { HomeComponent } from './components/home/home.component';
 
-import { StocksService } from "./components/services/stocks.service";
+import { StocksService } from './components/services/stocks.service';
 
 @NgModule({
     imports: [
         BrowserModule,
         HttpModule,
         JsonpModule,
-        routing
+        RouterModule,
+        RouterModule.forRoot(routes)
     ],
     providers: [
         StocksService
-    ],     
+    ],
     declarations: [
         AppComponent,
         HomeComponent

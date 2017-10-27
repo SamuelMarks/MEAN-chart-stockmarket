@@ -7,10 +7,10 @@
   
   <div class="row stock-list">
     <ul class="list-group">
-      <li *ngFor="let stock of stocks; let i = index;" class="list-group-item">
+      <li *ngFor="let stock of stocks; index as i;" class="list-group-item">
         <div class="row">
           <div class="col-xs-11">
-            {{ stock.code }} - ({{ stock.name }})
+            {{ stock.code }} - ({{ stock.Name }})
           </div>
           <div class="col-xs-1"><span (click)="untrackStock(stock._id)" class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></div>
         </div>

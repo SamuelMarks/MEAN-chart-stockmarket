@@ -1,9 +1,9 @@
 // load mongoose since we need it to define a model
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;  
+const Schema = mongoose.Schema;
 
-var stockSchema = new Schema({
+const stockSchema = new Schema({
   name: String,
   code: String
 });
