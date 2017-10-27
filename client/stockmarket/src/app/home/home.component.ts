@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Jsonp } from '@angular/http';
+
+import * as Highcharts from 'Highcharts';
+import 'Highcharts/modules/exporting';
 
 import { StockService } from '../stock/stock.service';
 import { IStock } from '../stock/stock';
@@ -10,6 +13,8 @@ import { IStock } from '../stock/stock';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('graph') graph: ElementRef;
+
   stocks: IStock[] = [];
   stockNames: any[] = [];
 
@@ -39,20 +44,19 @@ export class HomeComponent implements OnInit {
           this.stocks = stocks;
           this.loadStockData();
         },
-        error =>  this.errorMessage = error
+        error => this.errorMessage = error
       );
   }
 
   loadStockData() {
     this.stockNames = [];
 
-    for(let i = 0; i < this.stocks.length; i++) {
+    for (let i = 0; i < this.stocks.length; i++) {
       const currentStock: IStock = this.stocks[i];
       this.stockNames.push(currentStock.code);
     }
     this.initializeGraph();
   }
-
 
 
   getStockDetails() {
@@ -65,7 +69,7 @@ export class HomeComponent implements OnInit {
           this.stock = stock;
           this.saveStock();
         },
-        error =>  this.errorMessage = error
+        error => this.errorMessage = error
       );
   }
 
@@ -80,17 +84,17 @@ export class HomeComponent implements OnInit {
           });
           this.loadStockData();
         },
-        error =>  this.errorMessage = error
+        error => this.errorMessage = error
       );
   }
 
-  untrackStock(id:string) {
+  untrackStock(id: string) {
     this.stockService.deleteStock(id)
       .subscribe(
         (/*stock*/) => {
           this.getStocks();
         },
-        error =>  this.errorMessage = error
+        error => this.errorMessage = error
       );
   }
 
@@ -98,76 +102,79 @@ export class HomeComponent implements OnInit {
     const snArray = this.stockNames;
     //const snNames = ["AAPL", "MSFT", "GOOG", "TWTR"];
 
-    (() => {
-      const seriesOptions = [];
-      let seriesCounter = 0;
-      const names = snArray;
+    const seriesOptions = [];
+    let seriesCounter = 0;
+    const names = snArray;
 
-      names.forEach((name, i) => {
-        this.jsonp
-          .request('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=JSONP_CALLBACK')
-          .map(data => {
-            seriesOptions[i] = {
-              name: name,
-              data: data
-            };
+    // Highcharts
+    names.forEach((name, i) => {
+      this.jsonp
+        .request('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=JSONP_CALLBACK')
+        .map(data => {
+          console.info('Got data back:', data, ';');
 
-            // As we're loading the data asynchronously, we don't know what order it will arrive. So
-            // we keep a counter and create the chart when all the data is loaded.
-            seriesCounter += 1;
+          seriesOptions[i] = {
+            name: name,
+            data: data
+          };
 
-            if (seriesCounter === names.length) {
-              // Create the chart when all data is loaded
-              document.getElementById('graph')['highcharts']('StockChart', {
-                chart: {
-                  ignoreHiddenSeries: false
-                },
+          // As we're loading the data asynchronously, we don't know what order it will arrive. So
+          // we keep a counter and create the chart when all the data is loaded.
+          seriesCounter++;
 
-                legend: {
-                  shadow: true
-                },
+          if (seriesCounter === names.length) {
+            // Create the chart when all data is loaded
+            console.info('Rendering');
 
-                navigation: {
-                  enabled: false
-                },
+            Highcharts.chart('stockChart', {
+              chart: {
+                ignoreHiddenSeries: false
+              },
 
-                rangeSelector: {
-                  selected: 4
-                },
+              legend: {
+                shadow: true
+              },
 
-                credits: {
-                  enabled: 0
-                },
+              navigation: {
+                buttonOptions: { enabled: false }
+              },
 
-                yAxis: {
-                  labels: {
-                    formatter: function() {
-                      return this.value > 0 ? ' + ' : ''  + this.value + '%'
-                    }
-                  },
-                  plotLines: [{
-                    value: 0,
-                    width: 2,
-                    color: 'silver'
-                  }]
-                },
+              /*rangeSelector: {
+                selected: 4
+              },*/
 
-                plotOptions: {
-                  series: {
-                    compare: 'percent'
+              credits: {
+                enabled: false
+              },
+
+              yAxis: {
+                labels: {
+                  formatter: function() {
+                    return this.value > 0 ? ' + ' : '' + this.value + '%'
                   }
                 },
+                plotLines: [{
+                  value: 0,
+                  width: 2,
+                  color: 'silver'
+                }]
+              },
 
-                tooltip: {
-                  pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-                  valueDecimals: 2
-                },
+              plotOptions: {
+                series: {
+                  stacking: 'percent'
+                }
+              },
 
-                series: seriesOptions
-              });
-            }
-          });
-      });
-    })();
+              tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                valueDecimals: 2
+              },
+
+              series: seriesOptions
+            });
+          }
+        });
+    });
   }
 }
