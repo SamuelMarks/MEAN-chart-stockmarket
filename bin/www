@@ -6,7 +6,8 @@
 
 const debug = require('debug')('angular2-express-slim:server');
 const http = require('http');
-const app = require('../app');
+
+const app = require('../server/app');
 
 /**
  * Normalize a port into a number, string, or false.
