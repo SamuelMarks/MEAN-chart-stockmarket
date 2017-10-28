@@ -1,8 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Jsonp } from '@angular/http';
 
 import * as Highcharts from 'Highcharts';
 import 'Highcharts/modules/exporting';
+
+import * as $ from 'jquery';
 
 import { StockService } from '../stock/stock.service';
 import { IStock } from '../stock/stock';
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
   stock: IStock;
   errorMessage: string | any;
 
-  constructor(private jsonp: Jsonp, private stockService: StockService) {
+  constructor(private stockService: StockService) {
     this.stock = {
       Name: null,
       code: null,
@@ -68,6 +69,7 @@ export class HomeComponent implements OnInit {
         stock => {
           this.stock = stock;
           this.saveStock();
+          this.initializeGraph();
         },
         error => this.errorMessage = error
       );
@@ -106,10 +108,77 @@ export class HomeComponent implements OnInit {
     let seriesCounter = 0;
     const names = snArray;
 
+    console.info('initializeGraph::names =', names, ';');
+
+    const createChart = () => {
+      Highcharts.chart('stockChart', {
+        chart: {
+          ignoreHiddenSeries: false
+        },
+
+        legend: {
+          shadow: true
+        },
+
+        navigation: {
+          buttonOptions: { enabled: false }
+        },
+
+        /*rangeSelector: {
+          selected: 4
+        },*/
+
+        credits: {
+          enabled: false
+        },
+
+        yAxis: {
+          labels: {
+            formatter: function() {
+              return this.value > 0 ? ' + ' : '' + this.value + '%'
+            }
+          },
+          plotLines: [{
+            value: 0,
+            width: 2,
+            color: 'silver'
+          }]
+        },
+
+        plotOptions: {
+          series: {
+            stacking: 'percent'
+          }
+        },
+
+        tooltip: {
+          pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+          valueDecimals: 2
+        },
+
+        series: seriesOptions
+      });
+    };
+
     // Highcharts
     names.forEach((name, i) => {
-      this.jsonp
-        .request('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=JSONP_CALLBACK')
+      $.getJSON('https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=?', data => {
+
+        seriesOptions[i] = {
+          name: name,
+          data: data
+        };
+
+        // As we're loading the data asynchronously, we don't know what order it will arrive. So
+        // we keep a counter and create the chart when all the data is loaded.
+        seriesCounter += 1;
+
+        if (seriesCounter === names.length) {
+          createChart();
+        }
+      });
+      /*
+      this.stockService.highstockApi(name)
         .map(data => {
           console.info('Got data back:', data, ';');
 
@@ -126,55 +195,10 @@ export class HomeComponent implements OnInit {
             // Create the chart when all data is loaded
             console.info('Rendering');
 
-            Highcharts.chart('stockChart', {
-              chart: {
-                ignoreHiddenSeries: false
-              },
-
-              legend: {
-                shadow: true
-              },
-
-              navigation: {
-                buttonOptions: { enabled: false }
-              },
-
-              /*rangeSelector: {
-                selected: 4
-              },*/
-
-              credits: {
-                enabled: false
-              },
-
-              yAxis: {
-                labels: {
-                  formatter: function() {
-                    return this.value > 0 ? ' + ' : '' + this.value + '%'
-                  }
-                },
-                plotLines: [{
-                  value: 0,
-                  width: 2,
-                  color: 'silver'
-                }]
-              },
-
-              plotOptions: {
-                series: {
-                  stacking: 'percent'
-                }
-              },
-
-              tooltip: {
-                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-                valueDecimals: 2
-              },
-
-              series: seriesOptions
-            });
+            createChart();
           }
         });
+        */
     });
   }
 }

@@ -55,6 +55,14 @@ var StockService = /** @class */ (function () {
             .map(function (res) { return res.json(); })
             .catch(this.handleError);
     };
+    StockService.prototype.highstockApi = function (name) {
+        console.info('highstockApi called');
+        var url = 'https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=JSONP_CALLBACK';
+        return this.jsonp
+            .request(url, { method: 'Get' })
+            .map(function (r) { return r.json; })
+            .catch(this.handleError);
+    };
     /**
      * Handle HTTP error
      */

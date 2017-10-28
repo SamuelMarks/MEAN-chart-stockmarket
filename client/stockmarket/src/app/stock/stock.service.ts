@@ -58,6 +58,15 @@ export class StockService {
       .catch(this.handleError);
   }
 
+  highstockApi(name: string): Observable<Response> {
+    console.info('highstockApi called');
+    const url = 'https://www.highcharts.com/samples/data/jsonp.php?filename=' + name.toLowerCase() + '-c.json&callback=JSONP_CALLBACK';
+    return this.jsonp
+      .request(url, {method: 'Get'})
+      .map(r => r.json)
+      .catch(this.handleError);
+  }
+
   /**
    * Handle HTTP error
    */
